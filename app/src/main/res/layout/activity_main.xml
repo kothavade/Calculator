@@ -12,6 +12,10 @@
         android:id="@+id/display"
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:autoSizeTextType="uniform"
         android:gravity="right"
         android:text="0" />
@@ -19,7 +23,8 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:layout_margin="20dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
