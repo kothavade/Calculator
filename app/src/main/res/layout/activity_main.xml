@@ -164,5 +164,5 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
         android:gravity="center"
-        android:text="Calculator App\nVedKothavade\nBlock 3A" />
+        android:text="Calculator App\nVed Kothavade\nBlock 3A" />
 </RelativeLayout>
