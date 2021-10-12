@@ -51,6 +51,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         equal=findViewById(R.id.equal);
 
         one.setOnClickListener(this);
+        two.setOnClickListener(this);
+        three.setOnClickListener(this);
+        four.setOnClickListener(this);
+        five.setOnClickListener(this);
+        six.setOnClickListener(this);
+        seven.setOnClickListener(this);
+        eight.setOnClickListener(this);
+        nine.setOnClickListener(this);
+        zero.setOnClickListener(this);
+        plus.setOnClickListener(this);
+        minus.setOnClickListener(this);
+        multiply.setOnClickListener(this);
+        divide.setOnClickListener(this);
+        clear.setOnClickListener(this);
+        equal.setOnClickListener(this);
+
     }
 
     @Override
