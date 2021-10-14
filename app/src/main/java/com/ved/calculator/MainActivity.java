@@ -122,6 +122,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.equal:
                 numbers+="=";
                 break;
+            default:
+                 break;
         }
+
     }
 }
