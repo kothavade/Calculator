@@ -1,18 +1,18 @@
 package com.ved.calculator;
 
+import static java.lang.Character.isDigit;
 import static java.lang.Double.parseDouble;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    String numbers;
+    String input;
     TextView display;
     Button one;
     Button two;
@@ -30,6 +30,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button divide;
     Button clear;
     Button equal;
+    Button open;
+    Button close;
+    Button decimal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         divide=findViewById(R.id.divide);
         clear=findViewById(R.id.clear);
         equal=findViewById(R.id.equal);
+        open=findViewById(R.id.open);
+        close=findViewById(R.id.close);
+        decimal=findViewById(R.id.decimal);
 
         one.setOnClickListener(this);
         two.setOnClickListener(this);
@@ -70,88 +76,96 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         divide.setOnClickListener(this);
         clear.setOnClickListener(this);
         equal.setOnClickListener(this);
+        open.setOnClickListener(this);
+        close.setOnClickListener(this);
+        decimal.setOnClickListener(this);
 
-        numbers="";
+        input ="";
 
     }
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.one:
-                numbers+="1";
+                input +="1";
                 displayUpdate();
                 break;
             case R.id.two:
-                numbers+="2";
+                input +="2";
                 displayUpdate();
                 break;
             case R.id.three:
-                numbers+="3";
+                input +="3";
                 displayUpdate();
                 break;
             case R.id.four:
-                numbers+="4";
+                input +="4";
                 displayUpdate();
                 break;
             case R.id.five:
-                numbers+="5";
+                input +="5";
                 displayUpdate();
                 break;
             case R.id.six:
-                numbers+="6";
+                input +="6";
                 displayUpdate();
                 break;
             case R.id.seven:
-                numbers+="7";
+                input +="7";
                 displayUpdate();
                 break;
             case R.id.eight:
-                numbers+="8";
+                input +="8";
                 displayUpdate();
                 break;
             case R.id.nine:
-                numbers+="9";
+                input +="9";
                 displayUpdate();
                 break;
             case R.id.zero:
-                numbers+="0";
+                input +="0";
                 displayUpdate();
                 break;
             case R.id.clear:
-                numbers="";
-                displayUpdate();
+                input ="";
+                display.setText("0");
+                //displayUpdate();
                 break;
             case R.id.multiply:
-                numbers+=" *";
+                input += "*";
                 displayUpdate();
                 break;
             case R.id.divide:
-                numbers+=" /";
+                input +="/";
                 displayUpdate();
                 break;
             case R.id.plus:
-                numbers+=" +";
+                input +="+";
                 displayUpdate();
                 break;
             case R.id.minus:
-                numbers+=" -";
+                input +="-";
+                displayUpdate();
+                break;
+            case R.id.open:
+                input += "(";
+                displayUpdate();
+                break;
+            case R.id.close:
+                input += ")";
+                displayUpdate();
+                break;
+            case R.id.decimal:
+                input += ".";
                 displayUpdate();
                 break;
             case R.id.equal:
-                /*if (inputChecker(numbers)){
-                    display.setText("Invalid input. Try again.");
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            numbers="";
-                            displayUpdate();
-                        }
-                    }, 4000);
-                    break;
-                }*/
-                calculate();
-                displayUpdate();
-                numbers="";
+                try {
+                    calculateOuter();
+                } catch (Exception e) {
+                    errorDetected();
+                }
+
                 break;
             default:
                  break;
@@ -159,85 +173,93 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
     public void displayUpdate(){
-        display.setText(numbers);
+        display.setText(input);
     }
     public ArrayList<String>  splitNumbers(String input){
-        ArrayList<String> splitArr = new ArrayList<String>();
-        StringTokenizer st = new StringTokenizer(input);
-        while (st.hasMoreTokens()) {
-            splitArr.add(st.nextToken());
-        }
-        return splitArr;
+        String[] splitArray = input.split("((?=:|/|\\*|\\+|-)|(?<=:|/|\\*|\\+|-))");
+        ArrayList<String> splitArrayList = new ArrayList<String>(Arrays.asList(splitArray));
+        return splitArrayList;
     }
-    public void calculate(){
-        ArrayList<String> stringArray = splitNumbers(numbers);
-        System.out.println(stringArray);
-        ArrayList<Character> operatorArray = new ArrayList<>();
-        operatorArray.add('0');
-        ArrayList<Double> numberArray= new ArrayList<>();
-        numberArray.add(0,parseDouble(stringArray.get(0)));
-       for (int i = 1; i < stringArray.size(); i++) {
-           String current = stringArray.get(i);
-           char operator = current.charAt(0);
-           operatorArray.add(i,operator);
-           current = current.substring(1);
-           numberArray.add(i,parseDouble(current));
-       }
-        for (int i = 0; i < numberArray.size()-1; i++) {
-            if(operatorArray.get(i+1)=='*'){
-                numberArray.set(i, numberArray.get(i)*numberArray.get(i+1));
-                numberArray.remove(i+1);
-                operatorArray.remove(i+1);
+    public void calculateOuter(){
+        int openIndex = 0;
+        System.out.println(input);
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i)=='(') openIndex = i;
+            else if (input.charAt(i)==')') {
+                String innerInput = input.substring(openIndex+1,i);
+                String result = calculateInner(innerInput);
+                if (result.length()==0){
+                    return;
+                }
+                String temp = input.substring(0, openIndex) + result;
+                if (i < input.length()-1)
+                    temp += input.substring(i+1);
+                input = temp;
+                i=0;
+                openIndex = 0;
             }
         }
+        input = calculateInner(input);
+        if (input.length()!=0)
+            displayUpdate();
+    }
+    public String calculateInner(String subinput){
+        ArrayList<String> inputArray = splitNumbers(subinput);
+        ArrayList<Character> operatorArray = new ArrayList<>();
+        ArrayList<Double> numberArray= new ArrayList<>();
+
+        for (int i = 0; i < inputArray.size(); i++) {
+            String current = inputArray.get(i);
+            if(current.length()>0) {
+                if (isDigit(current.charAt(0)) || current.charAt(0)=='.') {
+                    numberArray.add(parseDouble(current));
+                } else {
+                    operatorArray.add(current.charAt(0));
+                }
+            }
+        }
+        //error checking
+        if (numberArray.size()!=operatorArray.size()+1) {
+            errorDetected();
+            return input;
+        }
+        //multiplication and division
         for (int i = 0; i < numberArray.size()-1; i++) {
-            if(operatorArray.get(i+1)=='/'){
-                if (numberArray.get(i+1)==0){
-                    numbers = "Invalid input. Try again.";
-                    displayUpdate();
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        public void run() {
-                            numbers="";
-                            displayUpdate();
-                        }
-                    }, 4000);
-                    break;
+            if(operatorArray.get(i)=='*' || operatorArray.get(i)=='/' ){
+                if (operatorArray.get(i)=='*'){
+                    numberArray.set(i, numberArray.get(i)*numberArray.get(i+1));
                 }
                 else {
+                    if (numberArray.get(i+1)==0){
+                        errorDetected();
+                        return input;
+                    }
                     numberArray.set(i, numberArray.get(i) / numberArray.get(i + 1));
-                    numberArray.remove(i + 1);
-                    operatorArray.remove(i + 1);
                 }
+                numberArray.remove(i+1);
+                operatorArray.remove(i);
+                i--;
             }
         }
+        //addition and subtraction
         for (int i = 0; i < numberArray.size()-1; i++) {
-            if(operatorArray.get(i+1)=='+'){
-                numberArray.set(i, numberArray.get(i)+numberArray.get(i+1));
+            if(operatorArray.get(i)=='+' || operatorArray.get(i)=='-' ){
+                if (operatorArray.get(i)=='+'){
+                    numberArray.set(i, numberArray.get(i)+numberArray.get(i+1));
+                }
+                else {
+                    numberArray.set(i, numberArray.get(i)-numberArray.get(i + 1));
+                }
                 numberArray.remove(i+1);
-                operatorArray.remove(i+1);
-            }
-        }
-        for (int i = 0; i < numberArray.size()-1; i++) {
-            if(operatorArray.get(i+1)=='-'){
-                numberArray.set(i, numberArray.get(i)-numberArray.get(i+1));
-                numberArray.remove(i+1);
-                operatorArray.remove(i+1);
+                operatorArray.remove(i);
+                i--;
             }
         }
         double result = numberArray.get(0);
-        numbers = String.format ("%.3f", result);
+        return String.valueOf(result);
     }
-    /*public boolean inputChecker(String input) {
-        for (int i = 0; i < input.length(); i++) {
-            if (!(Character.isDigit(input.charAt(i)))) {
-                if (!(input.charAt(i)==('*'|'/'|'+'|'-'))) {
-                    return true;
-                }
-            }
-        }
-        for (int i = 1; i < input.length(); i++) {
-
-        }
-    }*/
+    public void errorDetected () {
+        input = "";
+        display.setText("Invalid input. Try again.");
+    }
 }
