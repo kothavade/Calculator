@@ -7,4 +7,5 @@ Features:
 - Material Design
 - Shows full function, not per step (like the iOS calculator)
 
-![](.README_images/a5261654.png)
+![](.README_images/dark-mode.png)
+![](.README_images/light-mode.png)
